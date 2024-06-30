@@ -6,9 +6,11 @@
 Kullanmak için direk çalıştırabilirsiniz. Varsayılan ayarlar kullanılmıştır. [Şifre alanlarını kullanmadan önce güncelleyin](README.md#L12)
 
 - Mikrotik IP adresi: [prometheus.yml#40](./prometheus/prometheus.yml#L40)
-- Kendinize özel bir snmp auth eklemeniz gerekirse şuraya bakın: https://github.com/brunsgaard/snmp-exporter/tree/master?tab=readme-ov-file#authentication
-  - Buraya ekleyebilirsiniz: [snmp.yml#auths](./snmp-exporter/snmp.yml#L8)
+- Alt sistemler::
+  - Kendinize özel bir snmp auth eklemeniz gerekirse şuraya bakın: https://github.com/brunsgaard/snmp-exporter/tree/master?tab=readme-ov-file#authentication Buraya ekleyebilirsiniz: [snmp.yml#auths](./snmp-exporter/snmp.yml#L8)
   - Örnek olarak standart (community:public, version:2): [snmp.yml#auths](./snmp-exporter/snmp.yml#L3)
+  - Alermanager rules örneği: [ornek1.yml](prometheus/rules/ornek1.yml#L3)
+  - Alertmanager target: [.alertmanager.yml](alertmanager/alertmanager.yml#L3)
 - Grafana ayarlar (Şifrenizi değiştirin.): [.grafana](./environments/.grafana)
 
 ## Notlar
