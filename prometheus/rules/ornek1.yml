@@ -1,0 +1,35 @@
+groups:
+- name: ornekler
+  rules:
+    - alert: service_down
+      expr: up == 0
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "Instance {{ $labels.instance }} down"
+        description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 30 seconds."
+    - alert: link_high_traffic_warn
+      expr: irate(ifHCInOctets[30s])*8 > 5242880
+      for: 30s
+      labels:
+        severity: warning
+      annotations:
+        summary: "{{ $labels.instance }} kaynağının {{ $labels.ifDescr }} arayüzü > 5MBit"
+        description: "{{ $labels.instance }} kaynağının {{ $labels.ifDescr }} arayüzü 5MBit hızını geçmiştir."
+    - alert: link_high_traffic_crit
+      expr: irate(ifHCInOctets[30s])*8 > 52428800
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "{{ $labels.instance }} kaynağının {{ $labels.ifDescr }} arayüzü > 50MBit"
+        description: "{{ $labels.instance }} kaynağının {{ $labels.ifDescr }} arayüzü 50MBit hızını geçmiştir."
+    - alert: high_cpu
+      expr: 100 * (1 - rate(node_cpu_seconds_total{mode="idle"}[30s])) > 80
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "{{ $labels.instance }} kaynağının {{ $labels.cpu }} yükü > 80%"
+        description: "{{ $labels.instance }} kaynağının {{ $labels.cpu }} yükü 80% miktarını geçmiştir."

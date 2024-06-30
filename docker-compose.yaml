@@ -1,0 +1,94 @@
+version: "3.8"
+services:
+  grafana:
+    container_name: Grafana
+    image: grafana/grafana:latest
+    restart: always
+    links:
+      - prometheus:prometheus
+    volumes:
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./environments/.grafana
+    networks:
+      - monitoring # Prometheus ile iletişim kursun diye
+      - tunnel
+  prometheus:
+    container_name: Prometheus
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./prometheus/:/etc/prometheus
+      - ./prometheus/data:/prometheus
+    links: # Prometheus bileşenlerine ait linkler
+      - cadvisor:cadvisor
+      - node-exporter:node-exporter
+      - snmp-exporter:snmp-exporter
+      - alertmanager:alertmanager
+    networks:
+      - monitoring
+      - tunnel
+  # --------------- Prometheus bileşenleri Başla ---------------------------
+  node-exporter:
+    container_name: Prom-NodeExporter
+    image: prom/node-exporter:latest
+    restart: always
+    networks:
+      - monitoring
+  snmp-exporter:
+    env_file:
+      - ./environments/.snmp-exporter
+    container_name: Prom-SNMPExporter
+    command:
+      - --config.file=/etc/snmp_exporter/snmp.yml
+    image: prom/snmp-exporter:latest
+    volumes:
+      - ./snmp-exporter:/etc/snmp-exporter
+    restart: always
+    networks:
+      - monitoring
+  cadvisor:
+    container_name: Prom-Cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring
+  alertmanager:
+    container_name: Prom-AlertManager
+    image: prom/alertmanager:latest
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    restart: always
+    networks:
+      - monitoring
+  # --------------- Prometheus bileşenleri Bitir ---------------------------
+  portainer-ce:
+    container_name: Portainer
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    image: portainer/portainer-ce:latest
+    networks:
+      - tunnel
+  cloudflared:
+    container_name: CloudflareTunnel
+    image: cloudflare/cloudflared:latest
+    command:
+    restart: always
+    networks: # Ha bu tunel networkünde hiçbirşey linklemeden alıyorum. Özel isimle bir konteyner erişmek istersen onu liklerim :)
+      - tunnel
+
+volumes:
+  prom_data:
+  portainer_data:
+networks:
+  monitoring: # Prometheus ve alt bileşenlerinin ağı
+    driver: bridge
+  tunnel: # Swag reverse proxy iç sayfa yönlendirme ağı
+    driver: bridge
